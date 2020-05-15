@@ -3,6 +3,7 @@ package edu.yuferov.shop.server;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Singular;
 
 import java.util.List;
 
@@ -17,11 +18,13 @@ class Product {
     private String image;
     private double price;
     private double discount;
+
+    @Singular
     private List<Attribute> attributes;
 
     @Data
     @AllArgsConstructor
-    class Attribute {
+    static class Attribute {
         private String name;
         private String value;
     }

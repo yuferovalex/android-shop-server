@@ -22,20 +22,32 @@ class CategoryProductListController {
             "lorem, eget pretium lectus venenatis at. Curabitur lacinia odio at nibh ultricies pulvinar. Nunc purus " +
             "augue, scelerisque ut convallis ut, luctus sed lectus.";
 
+    private static final String IMAGE = "https://w0.pngwave.com/png/155/611/artist-s-book-scalable-graphics-gray-books-s-png-clip-art-thumbnail.png";
+
     static {
         Random random = new Random(1);
         for (Category category : CategoriesController.CATEGORIES) {
             for (int productId = 1; productId < 10; productId++) {
-                PRODUCTS.add(
-                        Product.builder()
-                                .id(productId)
-                                .categoryId(category.getId())
-                                .title(category.getName() + productId)
-                                .description(DESCRIPTION)
-                                .price(random.nextDouble() * 1000 + 100)
-                                .discount(100.0 - (productId * 5 % 35))
-                                .build()
-                );
+                String title = category.getName() + " " + productId;
+                Product.ProductBuilder builder = Product.builder()
+                        .id(productId)
+                        .categoryId(category.getId())
+                        .title(title)
+                        .description(DESCRIPTION)
+                        .image(IMAGE)
+                        .thumbnail(IMAGE)
+                        .price(random.nextInt(100000) / 100.00 + 100.00)
+                        .discount(productId * 5 % 35);
+
+                for (int attributeId = 1; attributeId <= 5; attributeId++) {
+                    builder
+                            .attribute(new Product.Attribute(
+                                    "Атрибут " + attributeId,
+                                    "Значение атрибута " + attributeId + " продукта " + title
+                            ));
+                }
+
+                PRODUCTS.add(builder.build());
             }
         }
     }
