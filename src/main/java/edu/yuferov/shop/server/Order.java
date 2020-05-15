@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 class Order {
     @Data
-    class Item {
+    static class Item {
         private int productId;
         private int count;
     }

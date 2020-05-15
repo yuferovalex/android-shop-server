@@ -1,19 +1,14 @@
 package edu.yuferov.shop.server;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 class CategoryProductListController {
 
-    private static final List<Product> PRODUCTS = new ArrayList<>();
+    private static final Map<Integer, List<Product>> PRODUCTS = new HashMap<>();
 
     private static final String DESCRIPTION = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
             "Vestibulum ipsum libero, ornare a quam ut, posuere pharetra mauris. Fusce vel felis eu libero " +
@@ -26,8 +21,10 @@ class CategoryProductListController {
 
     static {
         Random random = new Random(1);
+        int productId = 1;
         for (Category category : CategoriesController.CATEGORIES) {
-            for (int productId = 1; productId < 10; productId++) {
+            List<Product> products = new ArrayList<>();
+            for (int i = 1; i < 10000; i++, productId++) {
                 String title = category.getName() + " " + productId;
                 Product.ProductBuilder builder = Product.builder()
                         .id(productId)
@@ -47,23 +44,26 @@ class CategoryProductListController {
                             ));
                 }
 
-                PRODUCTS.add(builder.build());
+                products.add(builder.build());
             }
+            PRODUCTS.put(category.getId(), products);
         }
     }
 
     @GetMapping
     @RequestMapping("/category/{categoryId}")
-    List<Product> getCategoryProductList(@PathVariable int categoryId) {
-        return PRODUCTS.stream()
-                .filter(p -> p.getCategoryId() == categoryId)
+    List<Product> getCategoryProductList(@PathVariable int categoryId, @RequestParam int page, @RequestParam int pageSize) {
+        return PRODUCTS.get(categoryId).stream()
+                .skip(page * pageSize)
+                .limit(pageSize)
                 .collect(Collectors.toList());
     }
 
     @GetMapping
     @RequestMapping("/product/{productId}")
     Product getProduct(@PathVariable int productId) {
-        return PRODUCTS.stream()
+        return PRODUCTS.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream())
                 .filter(p -> p.getId() == productId)
                 .findFirst()
                 .get();
